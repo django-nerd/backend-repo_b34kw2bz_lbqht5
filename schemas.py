@@ -1,48 +1,43 @@
 """
-Database Schemas
+Database Schemas for Sports Coaching App
 
-Define your MongoDB collection schemas here using Pydantic models.
-These schemas are used for data validation in your application.
-
-Each Pydantic model represents a collection in your database.
-Model name is converted to lowercase for the collection name:
-- User -> "user" collection
-- Product -> "product" collection
-- BlogPost -> "blogs" collection
+Each Pydantic model represents a collection in MongoDB.
+Collection name is the lowercase of the class name.
 """
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 
-# Example schemas (replace with your own):
-
-class User(BaseModel):
+class Athlete(BaseModel):
     """
-    Users collection schema
-    Collection name: "user" (lowercase of class name)
+    Athletes collection schema
+    Collection: "athlete"
     """
-    name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
-    age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
-    is_active: bool = Field(True, description="Whether user is active")
+    first_name: str = Field(..., description="Athlete first name")
+    last_name: str = Field(..., description="Athlete last name")
+    sport: Optional[str] = Field(None, description="Primary sport")
+    team: Optional[str] = Field(None, description="Team or group")
+    age: Optional[int] = Field(None, ge=0, le=120)
+    tags: List[str] = Field(default_factory=list, description="Labels like positions, strengths")
 
-class Product(BaseModel):
+class Note(BaseModel):
     """
-    Products collection schema
-    Collection name: "product" (lowercase of class name)
+    Notes collection schema
+    Collection: "note"
     """
-    title: str = Field(..., description="Product title")
-    description: Optional[str] = Field(None, description="Product description")
-    price: float = Field(..., ge=0, description="Price in dollars")
-    category: str = Field(..., description="Product category")
-    in_stock: bool = Field(True, description="Whether product is in stock")
+    athlete_id: str = Field(..., description="Related athlete document _id as string")
+    title: str = Field(..., description="Short note title")
+    content: str = Field(..., description="Detailed observation / coaching note")
+    focus_skills: List[str] = Field(default_factory=list, description="Skills or areas of focus")
+    rating: Optional[int] = Field(None, ge=1, le=5, description="Optional 1-5 rating")
 
-# Add your own schemas here:
-# --------------------------------------------------
-
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+class SkillPlan(BaseModel):
+    """
+    Skill plans collection schema
+    Collection: "skillplan"
+    """
+    athlete_id: str = Field(...)
+    skill: str = Field(..., description="Skill to develop")
+    goal: str = Field(..., description="Specific measurable goal")
+    timeframe_weeks: Optional[int] = Field(None, ge=1, le=52)
+    notes: Optional[str] = Field(None)
